@@ -1,9 +1,11 @@
 
+
 # Installing packages
 install.packages("tidyverse")
 
 # Loading Libraries
 library(tidyverse)
+
 
 ############################################################
 ## WHR AGGREGATED DATA SET 2015 - 2021 
@@ -44,7 +46,7 @@ c_occ
 
 # Cleaning countries that are not represented in all years
 
-inc = 0
+inc = 1
 whr_raw_c <- whr_raw
 c_occ_f <- list()
 
@@ -64,11 +66,33 @@ for (each in c_occ) {
 
 # Checking to make sure cleaning was successful
 
-
 length(c_occ_f)
 length(unique(whr_raw_c$Country))
 
-
+setdiff(c_occ_f, as.list(unique(whr_raw_c$Country)))
 
 
 ############################################################
+## WHR Modeling and Analysis 
+############################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
