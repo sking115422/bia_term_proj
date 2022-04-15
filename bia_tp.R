@@ -47,13 +47,13 @@ c_occ
 # Cleaning countries that are not represented in all years
 
 inc = 1
-whr_raw_c <- whr_raw
+whr_c <- whr_raw
 c_occ_f <- list()
 
 for (each in c_occ) {
   
   if (each != 7) {
-    whr_raw_c <- subset(whr_raw_c, Country != c_uniq[inc])
+    whr_c <- subset(whr_c, Country != c_uniq[inc])
   }
   
   if (each == 7) {
@@ -67,21 +67,30 @@ for (each in c_occ) {
 # Checking to make sure cleaning was successful
 
 length(c_occ_f)
-length(unique(whr_raw_c$Country))
+length(unique(whr_c$Country))
 
-setdiff(c_occ_f, as.list(unique(whr_raw_c$Country)))
+setdiff(c_occ_f, as.list(unique(whr_c$Country)))
 
 
 ############################################################
 ## WHR Modeling and Analysis 
 ############################################################
 
+# Finding top 5, middle 5, bottom 5 countries
 
+c_rank <- whr_c %>% 
+  group_by(Country) %>%
+  summarize(avg_h_score = mean(`Happiness Score`)) %>%
+  arrange((desc(avg_h_score)))
 
+# Top 5
+head(c_rank, 5)
 
+# Middle 5
+c_rank[67:71, ]
 
-
-
+# Bottom 5
+tail(c_rank, 5)
 
 
 
