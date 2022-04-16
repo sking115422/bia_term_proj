@@ -2,9 +2,13 @@
 
 # Installing packages
 install.packages("tidyverse")
+install.packages("cluster")
+install.packages("factoextra")
 
 # Loading Libraries
 library(tidyverse)
+library(cluster)
+library(factoextra)
 
 
 ############################################################
@@ -71,10 +75,16 @@ length(unique(whr_c$Country))
 
 setdiff(c_occ_f, as.list(unique(whr_c$Country)))
 
+# Exporting final WHR dataset to CSV
+
+write_csv(whr_c, "data/whr_final.csv")
+
 
 ############################################################
 ## WHR Modeling and Analysis 
 ############################################################
+
+### GENERAL ANALYSIS
 
 # Finding top 5, middle 5, bottom 5 countries
 
@@ -92,14 +102,131 @@ c_rank[67:71, ]
 # Bottom 5
 tail(c_rank, 5)
 
+### K_MEANS CLUSTERING
+
+# Checking if there might be better ways to cluster these countries
+# Using K-means clustering
+
+# First we need to aggregate the data by year so we can see the average of happiness scores off each country across the years
+whr_clust <- whr_c %>% 
+  group_by(Country) %>%
+  summarize(avg_happiness_score = mean(`Happiness Score`), avg_economy = mean(Economy), avg_family = mean(Family), avg_health = mean(Health),
+            avg_freedom = mean(Freedom), avg_trust = mean(Trust), avg_generosity = mean(Generosity)) %>%
+  arrange((desc(avg_happiness_score)))
+
+# Creating a data frame that store country names and their ranks
+c_rank$CountryIndex <- 1:nrow(c_rank)
+
+# Replacing the country names with there associated index value corresponding to their average rank
+whr_clust$Country <- c_rank$CountryIndex
 
 
+# scaling our data
+
+whr_clust_og <- whr_clust
+whr_clust_scaled <- scale(whr_clust)
+
+mean_list <- list()
+std_list <- list()
+
+whr_clust
+
+for (i in colnames(whr_clust)){
+  
+  m = mean(whr_clust[[i]])
+  mean_list <- append(mean_list, m)
+  
+  std = sd(whr_clust[[i]])
+  std_list <- append(std_list, std)
+  
+  # whr_clust[[i]] <- (whr_clust[[i]] - m) / std
+  
+  i = 0
+  
+}
+
+mean_list
+std_list
+whr_clust_scaled
+
+# Setting seed for reproducibility
+set.seed(1) 
+
+# Creating elbow plot to determine optimal number of clusters
+fviz_nbclust(whr_clust_scaled, kmeans, method = "wss") +
+  geom_vline(xintercept = 4, linetype = 2, color = "red") +
+  labs(title = "Optimal Number of Clusters", subtitle = "Elbow method") +
+  xlab("Number of Clusters, K")
+
+# Clustering based on the optimal number of clusters
+km_res <- kmeans(whr_clust_scaled, 4, nstart = 25)
+print(km_res)
+
+# Visualizing the clustering
+fviz_cluster(km_res, data = whr_clust_scaled, main = "Cluster Plot", geom = c("point")) +
+  ggthemes::theme_fivethirtyeight()
+
+# Adding clustering results back as column to averaged WHR data
+whr_clust$Cluster <- km_res$cluster
+whr_clust$Country <- c_rank$Country
+write_csv(whr_clust, "data/whr_15-21_clusters.csv")
+
+# Creating and de-scaling cluster means table
+cluster_means <- as_tibble(km_res$centers)
+cluster_means_scaled <- as_tibble(km_res$centers)
+cluster_means
+
+# De-scaling
+for (j in 1:ncol(cluster_means)) {
+  cluster_means[ , j] <- cluster_means[ , j] * std_list[j] + mean_list[j]  
+  j = 0
+}
+
+cluster_means$num_in_cluster <- km_res$size
+cluster_means
+
+# Exporting clustering means as CSV
+write_csv(cluster_means, "visuals/clust_means.csv")
+
+### EVALUATE CONTRIES OF INTEREST OVER TIME
+
+# Getting top 5 countries over all years
+t5_names <- head(c_rank$Country, 5)
+t5_names
+
+top5 <- whr_c %>% filter (Country == t5_names[1] | Country == t5_names[2] | Country == t5_names[3] | 
+                          Country == t5_names[4] | Country == t5_names[5] )
+
+write_csv(top5, "data/top5.csv")
+
+# Getting bottom 5 countries over all years
+b5_names <- tail(c_rank$Country, 5)
+b5_names
+
+bot5 <- whr_c %>% filter (Country == b5_names[1] | Country == b5_names[2] | Country == b5_names[3] | 
+                            Country == b5_names[4] | Country == b5_names[5] )
+
+write_csv(bot5, "data/bot5.csv")
+
+# Countries of interest
+
+tmp1 <- whr_c %>% 
+  filter(Year == 2015) %>%
+  summarize(country = Country, hs = `Happiness Score`)
+
+tmp2 <- whr_c %>% 
+  filter(Year == 2021) %>%
+  summarize(country = Country, hs = `Happiness Score`)
+
+tmp1 <- tmp1 %>% arrange(country)
+tmp1
+
+diff <- arrange(desc(tmp2$hs - tmp1$hs))
+diff
 
 
-
-
-
-
+c_int <- whr_c %>% filter (Country == "Hungary" | Country == "Romania" | Country == "Bulgaria" | 
+                            Country == "Ukraine" | Country == "Greece" )
 
 
 
