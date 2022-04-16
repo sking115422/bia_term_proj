@@ -210,6 +210,7 @@ write_csv(bot5, "data/bot5.csv")
 
 # Countries of interest
 
+# Finding out which countries made the most improvement from 2015-2021
 tmp1 <- whr_c %>% 
   filter(Year == 2015) %>%
   summarize(country = Country, hs = `Happiness Score`)
@@ -221,8 +222,35 @@ tmp2 <- whr_c %>%
 tmp1 <- tmp1 %>% arrange(country)
 tmp1
 
-diff <- arrange(desc(tmp2$hs - tmp1$hs))
-diff
+tmp2 <- tmp2 %>% arrange(country)
+tmp2
+
+diff <- tmp2$hs - tmp1$hs
+
+diff_df <- tibble(country = tmp1$country, diff = diff)
+
+diff_df <- diff_df %>% arrange(desc(diff))
+
+# Getting top 5 most improved 
+mi_names <- head(diff_df$country, 5)
+
+mi <- whr_c %>% filter (Country == mi_names[1] | Country == mi_names[2] | Country == mi_names[3] | 
+                            Country == mi_names[4] | Country == mi_names[5] )
+
+write_csv(mi, "data/mi.csv")
+
+# Getting bottom 5 most improved
+li_names <- tail(diff_df$country, 5)
+
+li <- whr_c %>% filter (Country == li_names[1] | Country == li_names[2] | Country == li_names[3] | 
+                          Country == li_names[4] | Country == li_names[5] )
+
+write_csv(li, "data/li.csv")
+
+li
+
+
+
 
 
 c_int <- whr_c %>% filter (Country == "Hungary" | Country == "Romania" | Country == "Bulgaria" | 
