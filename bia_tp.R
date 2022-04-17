@@ -121,11 +121,11 @@ c_rank$CountryIndex <- 1:nrow(c_rank)
 whr_clust$Country <- c_rank$CountryIndex
 
 
-# scaling our data
-
+# Scaling our data
 whr_clust_og <- whr_clust
 whr_clust_scaled <- scale(whr_clust)
 
+# Capturing std and mean in a list so we can de-scale later
 mean_list <- list()
 std_list <- list()
 
@@ -188,7 +188,7 @@ cluster_means
 # Exporting clustering means as CSV
 write_csv(cluster_means, "visuals/clust_means.csv")
 
-### EVALUATE CONTRIES OF INTEREST OVER TIME
+### EVALUATING COUNTRIES OF INTEREST OVER TIME
 
 # Getting top 5 countries over all years
 t5_names <- head(c_rank$Country, 5)
@@ -247,15 +247,10 @@ li <- whr_c %>% filter (Country == li_names[1] | Country == li_names[2] | Countr
 
 write_csv(li, "data/li.csv")
 
-li
-
 # Countries that show showed significant improvement in the same region
 # Wanted to further quantify
 c_int <- whr_c %>% filter (Country == "Hungary" | Country == "Romania" | Country == "Bulgaria" | 
                             Country == "Ukraine" | Country == "Greece" )
 
 write_csv(c_int, "data/c_int.csv")
-
-mi_names
-
 
