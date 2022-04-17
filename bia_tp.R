@@ -249,14 +249,13 @@ write_csv(li, "data/li.csv")
 
 li
 
-
-
-
-
+# Countries that show showed significant improvement in the same region
+# Wanted to further quantify
 c_int <- whr_c %>% filter (Country == "Hungary" | Country == "Romania" | Country == "Bulgaria" | 
                             Country == "Ukraine" | Country == "Greece" )
 
+write_csv(c_int, "data/c_int.csv")
 
-
+mi_names
 
 
