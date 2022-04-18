@@ -4,11 +4,15 @@
 install.packages("tidyverse")
 install.packages("cluster")
 install.packages("factoextra")
+install.packages("reshape2")
+install.packages("ggplot2")
 
 # Loading Libraries
 library(tidyverse)
 library(cluster)
 library(factoextra)
+library(reshape2)
+library(ggplot2)
 
 
 ############################################################
@@ -79,6 +83,24 @@ setdiff(c_occ_f, as.list(unique(whr_c$Country)))
 
 write_csv(whr_c, "data/whr_final.csv")
 
+# Descriptive Statistics
+
+write_csv(summary (whr_c), "sum.csv")
+
+# Correlation Matrix
+
+# Dropping Country column bc its non numeric
+whr_c_d <- select(whr_c, -c(1, 2, 3))
+whr_c_d 
+
+cormat <- cor(whr_c_d, method = "pearson")
+
+melted_cormat <- melt(cormat)
+head(melted_cormat)
+
+ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) +
+  xlab("") + ylab("") +
+  geom_tile() 
 
 ############################################################
 ## WHR Modeling and Analysis 
