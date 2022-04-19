@@ -79,7 +79,7 @@ length(unique(whr_c$Country))
 
 setdiff(c_occ_f, as.list(unique(whr_c$Country)))
 
-# Exporting final WHR dataset to CSV
+# Exporting final WHR data set to CSV
 
 write_csv(whr_c, "data/whr_final.csv")
 
@@ -94,6 +94,8 @@ whr_c_d <- select(whr_c, -c(1, 2, 3))
 whr_c_d 
 
 cormat <- cor(whr_c_d, method = "pearson")
+
+cormat
 
 melted_cormat <- melt(cormat)
 head(melted_cormat)
